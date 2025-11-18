@@ -97,6 +97,7 @@ High-level pipeline:
     ├─ .env.example             # Environment template
     ├─ Makefile                 # Dev shortcuts (lint/test/build)
     ├─ pyproject.toml           # Build system, dependencies, metadata
+    ├─ ROADMAP.md
     ├─ README.md
     └─ LICENSE
 
@@ -167,12 +168,8 @@ Copy from template:
 
 ## Roadmap
 
--   Formal OCR interface (`OCREngine`).
--   PaddleOCR integration.
--   Chandra OCR (local/API).
--   Routing strategies (light/heavy/auto).
--   Benchmark suite.
--   Multi-format output (json/jsonl/txt).
+See the full project roadmap here:  
+[ROADMAP.md](./ROADMAP.md)
 
 ------------------------------------------------------------------------
 
