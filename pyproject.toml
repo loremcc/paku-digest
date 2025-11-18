@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "paku-digest"
+version = "0.1.0"
+description = "OCR and document-extraction pipeline that digests images and PDFs into structured text and metadata."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+
+authors = [
+  { name = "Kube" }
+]
+
+dependencies = [
+  "pydantic>=2.6,<3.0",
+  "typer>=0.12,<1.0",
+  "rich>=13,<14",
+  "python-dotenv>=1.0,<2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0,<9.0",
+  "pytest-cov>=5.0,<6.0",
+  "mypy>=1.10,<2.0",
+  "ruff>=0.6,<0.7",
+  "black>=24.0,<25.0",
+  "build>=1.2,<2.0",
+]
+
+ocr = [
+  "paddlepaddle==2.5.2",
+  "paddleocr>=2.7,<3.0",
+  "transformers>=4.41,<5.0",
+  "vllm>=0.5,<0.6",
+]
+
+[project.scripts]
+paku-digest = "paku_digest.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["paku_digest"]

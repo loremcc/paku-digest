@@ -1,0 +1,8 @@
+# OCR engines (to be enabled later)
+
+# paddlepaddle==2.5.2
+# paddleocr>=2.7,<3.0
+
+# git+https://github.com/datalab-to/chandra
+# transformers>=4.41,<5.0
+# vllm>=0.5,<0.6
