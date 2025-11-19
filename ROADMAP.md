@@ -28,9 +28,9 @@ development without breaking the architecture.
 
 ### 2.1 --- Define OCR interface
 
--   [ ] `OCREngine` Protocol / base class
--   [ ] Unified OCR output model
--   [ ] Engine registry (plug-in style)
+-   [x] `OCREngine` Protocol / base class
+-   [x] Unified OCR output model
+-   [x] Engine registry (plug-in style)
 
 ### 2.2 --- Implement real engines
 
