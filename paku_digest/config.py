@@ -45,35 +45,35 @@ class AppConfig:
         cfg.validate()
         return cfg
 
-        # -----------------------------------------
-        # Validation logic
-        # -----------------------------------------
-        def validate(self) -> None:
-            """
-            Validate essential environment configuration.
-            Raises ValueError with helpful messages on invalid config.
-            """
+    # -----------------------------------------
+    # Validation logic
+    # -----------------------------------------
+    def validate(self) -> None:
+        """
+        Validate essential environment configuration.
+        Raises ValueError with helpful messages on invalid config.
+        """
 
-            # Required fields
-            if not self.env:
-                raise ValueError("Environment variable PAKU_ENV is required.")
+        # Required fields
+        if not self.env:
+            raise ValueError("Environment variable PAKU_ENV is required.")
 
-            if self.default_ocr not in {"stub", "paddle", "chandra-api"}:
+        if self.default_ocr not in {"stub", "paddle", "chandra-api"}:
+            raise ValueError(
+                f"Invalid PAKU_DEFAULT_OCR='{self.default_ocr}'. "
+                "Must be one of: stub, paddle, chandra-api"
+            )
+
+        if not isinstance(self.workdir, Path):
+            raise ValueError("PAKU_WORKDIR must be a valid filesystem path.")
+
+        # Optional validation for Chandra
+        if self.default_ocr == "chandra-api":
+            if not self.chandra_api_url:
                 raise ValueError(
-                    f"Invalid PAKU_DEFAULT_OCR='{self.default_ocr}'. "
-                    "Must be one of: stub, paddle, chandra-api"
+                    "PAKU_CHANDRA_API_URL is required when PAKU_DEFAULT_OCR=chandra-api"
                 )
-
-            if not isinstance(self.workdir, Path):
-                raise ValueError("PAKU_WORKDIR must be a valid filesystem path.")
-
-            # Optional validation for Chandra
-            if self.default_ocr == "chandra-api":
-                if not self.chandra_api_url:
-                    raise ValueError(
-                        "PAKU_CHANDRA_API_URL is required when PAKU_DEFAULT_OCR=chandra-api"
-                    )
-                if not self.chandra_api_key:
-                    raise ValueError(
-                        "PAKU_CHANDRA_API_KEY is required when PAKU_DEFAULT_OCR=chandra-api"
-                    )
+            if not self.chandra_api_key:
+                raise ValueError(
+                    "PAKU_CHANDRA_API_KEY is required when PAKU_DEFAULT_OCR=chandra-api"
+                )
