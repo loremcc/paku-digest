@@ -34,9 +34,9 @@ development without breaking the architecture.
 
 ### 2.2 --- Implement real engines
 
--   [ ] `PaddleOCREngine` (local inference)
--   [ ] `ChandraOCREngine` (local or API)
--   [ ] CLI selection: `--ocr paddle` / `--ocr chandra`
+-   [x] `PaddleOCREngine` (local inference)
+-   [x] `ChandraOCREngine` (local or API)
+-   [x] CLI selection: `--ocr paddle` / `--ocr chandra`
 
 ### 2.3 --- Engine routing & strategies
 

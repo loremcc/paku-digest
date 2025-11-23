@@ -6,8 +6,9 @@ import sys
 
 import typer
 
-from .pipelines.digest_pipeline import run_digest
 from .context import AppContext
+from .config import AppConfig
+from .pipelines.digest_pipeline import run_digest
 
 app = typer.Typer(help="paku-digest – OCR and document extraction pipeline.")
 
@@ -45,6 +46,33 @@ def config() -> None:
         "ocr_engines": list(ctx.ocr_engines.keys()),
     }
     print(json.dumps(data, indent=2))
+
+
+@app.command()
+def engines() -> None:
+    """List registered OCR engines."""
+    ctx = AppContext.instance()
+    engines = ctx.list_ocr_engines()
+    data = [
+        {"name": name, "type": engine.__class__.__name__}
+        for name, engine in engines.items()
+    ]
+    print(json.dumps(data, indent=2))
+
+
+@app.command()
+def env_check() -> None:
+    """
+    Validate environment configuration and print result.
+    """
+    try:
+        cfg = AppConfig.from_env()
+        print("Environment configuration OK:")
+        print(cfg)
+    except Exception as e:
+        print("Configuration error:")
+        print(str(e))
+        raise typer.Exit(code=1)
 
 
 def main() -> None:

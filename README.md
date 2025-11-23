@@ -1,177 +1,220 @@
 # paku-digest
 
-OCR and document-extraction pipeline that **digests** images and PDFs
-into structured text and metadata.
+OCR and document-extraction pipeline that **digests** images and PDFs into structured text and metadata.
 
-`paku-digest` is designed as a personal project built with:
-modular architecture, `.env`, configuration, typed CLI, and
-a plugin-based OCR engine system (stub for now, Paddle/Chandra later).
+`paku-digest` is a modular, enterprise‑grade personal project designed with:
+- typed configuration via `.env`
+- a singleton `AppContext`
+- Pydantic models
+- Typer CLI
+- a plug‑in OCR engine system (`stub`, optional `paddle`, optional `chandra-api`)
 
-------------------------------------------------------------------------
+---
 
 ## Overview
 
 `paku-digest`:
 
--   Processes images or directories.
--   Applies an OCR pipeline (engine → normalization → structuring).
--   Produces structured JSON ready for further ingestion or processing.
+- Processes images or entire directories  
+- Applies a pluggable OCR engine (stub → paddle → chandra)  
+- Normalizes output into structured `Document` models  
+- Exports clean JSON suitable for ingestion or pipelines  
 
-Current capabilities: - **Stub OCR Engine** to validate architecture and
-flow. - Typer-based CLI (`paku-digest`). - Singleton `AppContext`
-managing config, logger, and OCR engines. - Pydantic models for
-`Document`, `OcrResult`, `OcrBlock`, etc.
+### Current capabilities
+- **Stub OCR Engine** (architecture validation)
+- Typer-based CLI (`paku-digest`)
+- Singleton `AppContext` (config + logger + OCR registry)
+- Unified OCR models: `Document`, `OcrResult`, `OcrBlock`, `BoundingBox`
+- Clean project layout + `.env` configuration + Makefile
 
-Future: - PaddleOCR integration. - Chandra OCR (local or API via
-vLLM). - Routing strategies, benchmarking, multiple output formats.
+### Upcoming (Phase 2.x)
+- PaddleOCR (local inference)
+- Chandra OCR (OpenAI-compatible API)
+- Benchmarking pipelines
+- Regression tests
+- Multi-format export (txt, jsonl)
+- Advanced routing strategies
 
-------------------------------------------------------------------------
+---
 
 ## Features
 
--   Unified CLI (`paku-digest`).
--   Centralized config via `.env` → `AppConfig`.
--   Singleton `AppContext` with OCR engine registry.
--   Pydantic models for strong typing.
--   Modular pipeline system (`digest` pipeline).
--   Extensible architecture for new OCR engines.
+- Unified CLI  
+- Centralized configuration  
+- Strong typing via Pydantic  
+- Modular OCR engine registry  
+- Reproducible environment  
+- High extensibility for OCR engines and pipelines  
 
-------------------------------------------------------------------------
+---
 
 ## Architecture
 
 High-level pipeline:
 
-    CLI (Typer)
-       ↓
-    pipelines.digest_pipeline.run_digest()
-       ↓
-    AppContext (singleton)
-       - AppConfig
-       - logger
-       - ocr_engines registry
-       ↓
-    OCR Engine (Stub for now)
-       ↓
-    Pydantic models
-       ↓
-    JSON output
+```
+CLI (Typer)
+   ↓
+pipelines.digest_pipeline.run_digest()
+   ↓
+AppContext (singleton)
+   - AppConfig
+   - logger
+   - ocr_engines registry
+   ↓
+OCR Engine (stub / paddle / chandra-api)
+   ↓
+Pydantic models
+   ↓
+JSON output
+```
 
-------------------------------------------------------------------------
+---
 
 ## Project Layout
 
-    paku-digest/
-    ├─ paku_digest/
-    │ ├─ init.py
-    │ ├─ cli.py                 # Typer CLI (paku-digest ...)
-    │ ├─ config.py              # AppConfig loader (.env → dataclass)
-    │ ├─ context.py             # AppContext singleton (config, logger, engines)
-    │ ├─ logging_utils.py       # Centralized logger setup
-    │ ├─ models.py              # Pydantic models (Document, OcrResult, ...)
-    │ └─ pipelines/
-    │ ├─ init.py
-    │ └─ digest_pipeline.py
-    │
-    ├─ samples/                 # Local sample dataset for development & OCR tests
-    │ ├─ raw/                   # Unmodified screenshots, photos, scans
-    │ │ ├─ img01.png
-    │ │ ├─ img02.jpg
-    │ │ └─ ...
-    │ │
-    │ ├─ curated/               # Hand-picked curated samples for benchmarking
-    │ │ ├─ forms/
-    │ │ ├─ documents/
-    │ │ ├─ anime_text/          # Anime screenshots containing text (OCR hard cases)
-    │ │ └─ noisy/               # Blurry/low-light/glare samples
-    │ │
-    │ ├─ expected/              # Ground-truth JSON used for regression testing
-    │ │ ├─ img01.json
-    │ │ ├─ invoice_01.json
-    │ │ └─ ...
-    │ │
-    │ ├─ notes.md               # Observations / OCR failures to revisit
-    │ └─ README.md              # Documentation of the samples folder
-    │
-    ├─ .env                     # Local configuration (not committed)
-    ├─ .env.example             # Environment template
-    ├─ Makefile                 # Dev shortcuts (lint/test/build)
-    ├─ pyproject.toml           # Build system, dependencies, metadata
-    ├─ ROADMAP.md
-    ├─ README.md
-    └─ LICENSE
+```
+paku-digest/
+├─ paku_digest/
+│  ├─ __init__.py
+│  ├─ cli.py                 # Typer CLI (paku-digest ...)
+│  ├─ config.py              # AppConfig loader + validation
+│  ├─ context.py             # AppContext singleton (config, logger, engines)
+│  ├─ logging_utils.py       # Centralized logger setup
+│  ├─ models.py              # Document, OcrResult, OcrBlock,...
+│  ├─ ocr/                   # OCR engines (stub, paddle, chandra-api)
+│  │   ├─ base.py            # OCREngine interface
+│  │   ├─ stub.py            # Stub engine
+│  │   ├─ paddle.py          # PaddleOCR (optional, future)
+│  │   └─ chandra_api.py     # Chandra OCR (placeholder)
+│  └─ pipelines/
+│      ├─ __init__.py
+│      └─ digest_pipeline.py
+│
+├─ samples/                  # Empty dataset structure (intentionally clean)
+│  ├─ raw/
+│  ├─ curated/
+│  ├─ expected/
+│  ├─ notes.md
+│  └─ README.md
+│
+├─ .env                      # Local configuration (ignored)
+├─ .env.example              # Environment template
+├─ Makefile
+├─ pyproject.toml
+├─ ROADMAP.md
+├─ CONTRIBUTING.md
+├─ README.md                 # This file
+└─ LICENSE
+```
 
-------------------------------------------------------------------------
+---
 
 ## Installation
 
 ### Create and activate venv
 
-    python -m venv .venv
+```
+python -m venv .venv
+```
 
 Windows:
 
-    .venv\Scripts\activate
+```
+.venv\Scripts\activate
+```
 
 Linux/macOS:
 
-    source .venv/bin/activate
+```
+source .venv/bin/activate
+```
 
 ### Install dependencies
 
-    python -m pip install --upgrade pip
-    python -m pip install -e ".[dev]"
+```
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+```
 
-------------------------------------------------------------------------
+---
 
 ## Configuration
 
 Use `.env` in root:
 
-    PAKU_ENV=local
-    PAKU_LOG_LEVEL=INFO
-    PAKU_DEFAULT_OCR=stub
-    PAKU_WORKDIR=.
-    PAKU_PADDLE_LANG=en
+```
+PAKU_ENV=local
+PAKU_LOG_LEVEL=INFO
+PAKU_DEFAULT_OCR=stub
+PAKU_WORKDIR=.
+PAKU_PADDLE_LANG=en
 
-Copy from template:
+# Optional — Chandra (OpenAI-compatible API)
+PAKU_CHANDRA_API_URL=
+PAKU_CHANDRA_API_KEY=
+```
 
-    cp .env.example .env
+Copy template:
 
-------------------------------------------------------------------------
+```
+cp .env.example .env
+```
+
+---
 
 ## Usage
 
 ### Show configuration
 
-    paku-digest config
+```
+paku-digest config
+```
+
+### Validate environment
+
+```
+paku-digest env-check
+```
+
+### List available OCR engines
+
+```
+paku-digest engines
+```
 
 ### Run OCR digest pipeline
 
-    paku-digest digest samples --out out/samples.json
+```
+paku-digest digest samples --out out/samples.json
+```
 
-------------------------------------------------------------------------
+---
 
 ## Development
 
 ### Lint/format
 
-    python -m ruff check paku_digest
-    python -m mypy paku_digest
-    python -m black paku_digest
+```
+python -m ruff check paku_digest
+python -m mypy paku_digest
+python -m black paku_digest
+```
 
 ### Tests
 
-    python -m pytest
+```
+python -m pytest
+```
 
-------------------------------------------------------------------------
+---
 
 ## Roadmap
 
-See the full project roadmap here:  
+See the full project roadmap:  
 [ROADMAP.md](./ROADMAP.md)
 
-------------------------------------------------------------------------
+---
 
 ## License
 
