@@ -22,7 +22,6 @@ class PaddleOCREngine(OCREngine):
         self._config = config
         self._logger = logger
 
-        # Lazy, safe import: non rompe il progetto se paddleocr non è installato
         if importlib.util.find_spec("paddleocr") is None:
             raise RuntimeError(
                 "PaddleOCR is not installed. "
@@ -62,7 +61,6 @@ class PaddleOCREngine(OCREngine):
 
         # PaddleOCR structure: result[0] is list of lines
         for line in result[0]:
-            # line[0] = box, line[1] = (text, confidence)
             box = line[0]
             text, conf = line[1]
 

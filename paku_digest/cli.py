@@ -6,16 +6,22 @@ import sys
 
 import typer
 
+from typing import List
+
 from .context import AppContext
 from .config import AppConfig
 from .pipelines.digest_pipeline import run_digest
+from .pipelines.benchmark_pipeline import run_benchmark
+from .pipelines.compare_pipeline import run_compare
+from .pipelines.export_pipeline import export_documents_to_string
 
 app = typer.Typer(help="paku-digest – OCR and document extraction pipeline.")
 
 
 @app.command()
+@app.command()
 def digest(
-    input_path: Path = typer.Argument(..., help="File o directory di input."),
+    input_path: Path = typer.Argument(..., help="Input file or directory."),
     ocr: str | None = typer.Option(
         None,
         "--ocr",
@@ -26,13 +32,47 @@ def digest(
             "Defaults to PAKU_DEFAULT_OCR."
         ),
     ),
+    workers: int = typer.Option(
+        0,
+        "--workers",
+        help=(
+            "Number of parallel workers. "
+            "0 = use PAKU_MAX_WORKERS from config; "
+            "1 = sequential; >1 = ThreadPool."
+        ),
+    ),
+    format: str = typer.Option(
+        "json",
+        "--format",
+        "-f",
+        help="Output format: json | jsonl | txt | csv (default: json).",
+    ),
     out: Path | None = typer.Option(
-        None, "--out", help="JSON files in output (stdout by default)."
+        None,
+        "--out",
+        help="Output file (stdout by default).",
     ),
 ) -> None:
-    docs = run_digest(input_path=input_path, ocr_engine_name=ocr)
-    payload = [d.model_dump(mode="json") for d in docs]
-    text = json.dumps(payload, ensure_ascii=False, indent=2)
+    if workers <= 0:
+        ctx = AppContext.instance()
+        resolved_workers = ctx.config.max_workers
+    else:
+        resolved_workers = workers
+
+    docs = run_digest(
+        input_path=input_path,
+        ocr_engine_name=ocr,
+        workers=resolved_workers,
+    )
+
+    fmt = format.lower()
+    if fmt not in {"json", "jsonl", "txt", "csv"}:
+        raise typer.BadParameter(
+            f"Unsupported format: {format!r}. Use one of: json, jsonl, txt, csv.",
+            param_hint="--format",
+        )
+
+    text = export_documents_to_string(docs, fmt=fmt)
 
     if out:
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -80,6 +120,61 @@ def env_check() -> None:
         print("Configuration error:")
         print(str(e))
         raise typer.Exit(code=1)
+
+
+@app.command()
+def benchmark(
+    input_path: Path = typer.Argument(..., help="Input file or directory."),
+    engine: List[str] = typer.Option(
+        None,
+        "--engine",
+        "-e",
+        help=(
+            "OCR engine(s) to benchmark by name (e.g. --engine stub --engine paddle). "
+            "If omitted, all registered engines are benchmarked."
+        ),
+    ),
+    out: Path | None = typer.Option(
+        None,
+        "--out",
+        help="JSON output file for benchmark results (stdout if omitted).",
+    ),
+) -> None:
+    """
+    Benchmark engines over the given dataset and report per-image timings.
+    """
+    engine_names = engine or None
+    result = run_benchmark(input_path=input_path, engine_names=engine_names)
+    text = json.dumps(result, ensure_ascii=False, indent=2)
+
+    if out:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(text, encoding="utf-8")
+    else:
+        sys.stdout.write(text + "\n")
+
+
+@app.command()
+def compare(
+    left: Path = typer.Argument(..., help="Left JSON digest output."),
+    right: Path = typer.Argument(..., help="Right JSON digest output."),
+    out: Path | None = typer.Option(
+        None,
+        "--out",
+        help="JSON output file for comparison results (stdout if omitted).",
+    ),
+) -> None:
+    """
+    Compare two digest outputs (per-path OCR text and similarity).
+    """
+    result = run_compare(left=left, right=right)
+    text = json.dumps(result, ensure_ascii=False, indent=2)
+
+    if out:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(text, encoding="utf-8")
+    else:
+        sys.stdout.write(text + "\n")
 
 
 def main() -> None:

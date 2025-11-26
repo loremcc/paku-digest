@@ -15,9 +15,10 @@ class AppConfig:
     workdir: Path
     paddle_lang: str
 
-    # Chandra API (temporary config)
     chandra_api_url: str | None = None
     chandra_api_key: str | None = None
+
+    max_workers: int = 1
 
     @classmethod
     def from_env(cls) -> "AppConfig":
@@ -32,6 +33,12 @@ class AppConfig:
         chandra_api_url = os.getenv("PAKU_CHANDRA_API_URL")
         chandra_api_key = os.getenv("PAKU_CHANDRA_API_KEY")
 
+        max_workers_raw = os.getenv("PAKU_MAX_WORKERS", "1")
+        try:
+            max_workers = int(max_workers_raw)
+        except ValueError:
+            max_workers = 1
+
         cfg = cls(
                 env=env,
                 log_level=log_level,
@@ -40,21 +47,20 @@ class AppConfig:
                 paddle_lang=paddle_lang,
                 chandra_api_url=chandra_api_url,
                 chandra_api_key=chandra_api_key,
+                max_workers=max_workers,
             )
 
         cfg.validate()
         return cfg
 
-    # -----------------------------------------
+
     # Validation logic
-    # -----------------------------------------
     def validate(self) -> None:
         """
         Validate essential environment configuration.
         Raises ValueError with helpful messages on invalid config.
         """
 
-        # Required fields
         if not self.env:
             raise ValueError("Environment variable PAKU_ENV is required.")
 
@@ -77,3 +83,6 @@ class AppConfig:
                 raise ValueError(
                     "PAKU_CHANDRA_API_KEY is required when PAKU_DEFAULT_OCR=chandra-api"
                 )
+        
+        if self.max_workers < 1:
+            raise ValueError("PAKU_MAX_WORKERS must be >=1")

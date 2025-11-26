@@ -48,10 +48,10 @@ development without breaking the architecture.
 
 ## Phase 3 --- Pipelines Expansion
 
--   [ ] `digest` pipeline v2 with parallelism and batching
--   [ ] Benchmark pipeline
--   [ ] Compare pipeline
--   [ ] Multi-format export pipeline
+-   [x] `digest` pipeline v2 with parallelism and batching
+-   [x] Benchmark pipeline
+-   [x] Compare pipeline
+-   [x] Multi-format export pipeline
 
 ------------------------------------------------------------------------
 
