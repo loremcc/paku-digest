@@ -17,7 +17,14 @@ app = typer.Typer(help="paku-digest – OCR and document extraction pipeline.")
 def digest(
     input_path: Path = typer.Argument(..., help="File o directory di input."),
     ocr: str | None = typer.Option(
-        None, "--ocr", help="OCR engine to use (default: from config)."
+        None,
+        "--ocr",
+        help=(
+            "OCR engine or strategy to use. "
+            "Engines: stub, paddle, chandra-api. "
+            "Strategies: light, heavy, auto. "
+            "Defaults to PAKU_DEFAULT_OCR."
+        ),
     ),
     out: Path | None = typer.Option(
         None, "--out", help="JSON files in output (stdout by default)."

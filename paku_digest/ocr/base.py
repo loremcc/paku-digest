@@ -11,16 +11,23 @@ class OCREngine(ABC):
 
     @abstractmethod
     def name(self) -> str:
-        """Human-readble, unique engine name (e.g. 'stub', 'paddle', 'chandra-api')"""
+        """Unique engine name (e.g. 'stub', 'paddle', 'chandra-api')."""
         raise NotImplementedError
     
     @abstractmethod
     def extract(self, path: Path) -> OcrResult:
-        """
-        Run OCR on a single image file and return a unified OcrResult.
-
-        Implementations must:
-        - not mutate the input path
-        - return a fully-populated OcrResult (engine, raw_text, blocks, meta, ...)
-        """
+        """Run OCR on a single image file and return a unified OcrResult."""
         raise NotImplementedError
+
+    def kind(self) -> str:
+        """
+        Engine kind of routing: 'light' or 'heavy'.
+
+        Default is 'light'. Heavy engines are more accurate but slower or more
+        expensive
+        """
+        return "light"
+    
+    def is_healthy(self) -> bool:
+        """Best-effort health indicator for routing."""
+        return True

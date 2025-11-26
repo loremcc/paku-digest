@@ -40,7 +40,10 @@ class PaddleOCREngine(OCREngine):
 
     def name(self) -> str:
         return "paddle"
-
+    
+    def kind(self) -> str:
+        return "heavy"
+    
     def extract(self, path: Path) -> OcrResult:
         self._logger.info(f"[paddle] OCR on {path}")
         result = self._ocr.ocr(str(path), cls=True)

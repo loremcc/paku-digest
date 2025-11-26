@@ -27,7 +27,7 @@ def run_digest(
 ) -> List[Document]:
     """
     Main digest pipeline:
-    - resolves the OCR engine (from arg or config)
+    - resolves the OCR engine (from arg or config/strategy)
     - discovers input images
     - runs OCR on each
     - returns a list of Document models
@@ -36,15 +36,15 @@ def run_digest(
     cfg = ctx.config
     log = ctx.logger
 
-    engine_name = ocr_engine_name or cfg.default_ocr
-    engine = ctx.get_ocr(engine_name)
+    key = ocr_engine_name or cfg.default_ocr
+    engine = ctx.resolve_engine(key)
 
     paths = discover_images(input_path)
     documents: list[Document] = []
 
     for p in paths:
-        log.info(f"[digest] Processing {p}")
-        ocr_result = engine.extract(p)  # returns OcrResult
+        log.info(f"[digest] Processing {p} with engine '{engine.name()}'")
+        ocr_result = engine.extract(p)
         doc = Document(path=p, ocr=ocr_result)
         documents.append(doc)
 

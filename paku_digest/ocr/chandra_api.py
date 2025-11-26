@@ -46,6 +46,9 @@ class ChandraAPIOCREngine(OCREngine):
     def name(self) -> str:
         return "chandra-api"
 
+    def kind(self) -> str:
+        return "heavy"
+    
     def extract(self, path: Path) -> OcrResult:
         """
         Placeholder implementation: raises a clear message.

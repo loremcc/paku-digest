@@ -40,9 +40,9 @@ development without breaking the architecture.
 
 ### 2.3 --- Engine routing & strategies
 
--   [ ] Strategy: `light` / `heavy` / `auto`
--   [ ] Performance-aware routing
--   [ ] Engine health-checks
+-   [x] Strategy: `light` / `heavy` / `auto`
+-   [x] Performance-aware routing
+-   [x] Engine health-checks
 
 ------------------------------------------------------------------------
 
